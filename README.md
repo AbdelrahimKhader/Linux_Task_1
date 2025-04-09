@@ -30,7 +30,7 @@ echo "/dev/mapper/New_VG-New_LV /mnt/data ext4 defaults 0 0" >> /etc/fstab
 ### Part 2: User and Group Management
 ```bash
 adduser user1
-passwd user1                            # redhat
+passwd user1                            
 usermod -u 601 user1
 
 echo "DenyUsers user1" >> /etc/ssh/sshd_config
@@ -44,10 +44,10 @@ useradd user3
 groupadd admin
 usermod -aG admin user2
 usermod -aG admin user3
-gpasswd admin                           # redhat
+gpasswd admin                           
 
-passwd user2                            # redhat
-passwd user3                            # redhat
+passwd user2                            
+passwd user3                            
 
 visudo                                  # Add:
 user3 ALL=(ALL) NOPASSWD:ALL

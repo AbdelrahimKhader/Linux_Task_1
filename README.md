@@ -63,6 +63,7 @@ ssh abed@192.168.1.4
 
 ### Part 4: ACL Permissions
 ```bash
+cp /etc/fstab /var/tmp/admin
 getfacl /var/tmp/admin
 setfacl -m u:user1:rwx /var/tmp/admin
 setfacl -m u:user2:--- /var/tmp/admin

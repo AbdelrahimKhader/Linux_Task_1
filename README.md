@@ -112,7 +112,7 @@ firewall-cmd --reload
 echo "
 [zabbix-local]
 name=Zabbix Local Repository
-baseurl=http://<your_server_ip>/zabbix/
+baseurl=http://10.0.2.15/zabbix/
 enabled=1
 gpgcheck=0
 " >> /etc/yum.repos.d/zabbix-local.repo
@@ -123,10 +123,14 @@ yum install zabbix-server zabbix-web zabbix-agent php
 
 ### Part 8: Firewall Rules
 ```bash
-firewall-cmd --zone=public --add-port=443/tcp --permanent
-firewall-cmd --zone=public --add-port=80/tcp --permanent
-
+firewall-cmd --zone=public --add-port=443/tcp --permanent 
+firewall-cmd --zone=public --add-port=80/tcp --permanent 
 firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" source address="192.168.1.5" port port="22" protocol="tcp" reject' --permanent
+#USING IP TABLES:
+iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+iptables -A INPUT -s 10.0.0.2 -p tcp --dport 22 -j DROP
+iptables-save 
 ```
 
 ### Part 9: Cron Job - Logged Users Timestamp
@@ -142,34 +146,30 @@ crontab -e
 
 ### Part 10: MariaDB + Student Table
 ```bash
+#After Making Nat Network, Connect from 192.168.1.7 to mariadb
 yum install mariadb-server -y
 iptables -A INPUT -p tcp --dport 3306 -j ACCEPT
 service iptables save
 systemctl restart iptables
 systemctl start mariadb
 systemctl enable mariadb
-
 mysql -u root
-
 CREATE DATABASE studentdb;
-CREATE USER 'abed'@'10.0.2.15' IDENTIFIED BY '1234';
-GRANT ALL PRIVILEGES ON *.* TO 'abed'@'10.0.2.15' WITH GRANT OPTION;
+CREATE USER 'abed'@'192.168.1.7 ' IDENTIFIED By '1234';
+GRANT ALL PRIVILEGES ON *.* TO 'abed'@'1192.168.1.7 ' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
-SET PASSWORD FOR 'abed'@'10.0.2.15' = PASSWORD('1234');
+SET PASSWORD FOR 'abed'@'192.168.1.7 ' = PASSWORD('1234');
 FLUSH PRIVILEGES;
-
--- Then login as abed:
-mysql -u abed -p studentdb
-
+mysql -u abed -p 
+1234 
 CREATE TABLE students (
-  student_number VARCHAR(10) PRIMARY KEY,
-  first_name VARCHAR(50),
-  last_name VARCHAR(50),
-  program_enrolled VARCHAR(50),
-  graduation_year INT
+    student_number VARCHAR(10) PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    program_enrolled VARCHAR(50),
+    graduation_year INT
 );
-
-INSERT INTO students VALUES
+INSERT INTO students (student_number, first_name, last_name, program_enrolled, graduation_year) VALUES
 ('110-001', 'Allen', 'Brown', 'Mechanical', 2017),
 ('110-002', 'David', 'Brown', 'Mechanical', 2017),
 ('110-003', 'Mary', 'Green', 'Electrical', 2018),
